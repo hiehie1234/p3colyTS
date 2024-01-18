@@ -1,16 +1,30 @@
 import { Room, Client } from "@colyseus/core";
 import { MyRoomState, Player } from "./schema/MyRoomState";
-
+import { Message, IinputPayload } from "../../../type/message"
 export class MyRoom extends Room<MyRoomState> {
   maxClients = 4;
 
   onCreate (options: any) {
     this.setState(new MyRoomState());
 
-    this.onMessage("type", (client, message) => {
-      //
-      // handle "type" message
-      //
+    this.onMessage(Message.playerMove, (client, input: IinputPayload) => {
+       // get reference to the player who sent the message
+       const player = this.state.players.get(client.sessionId);
+       const velocity = 2; // can share data instead
+
+       if (input.left) {
+        player.x -= velocity;
+
+      } else if (input.right) {
+        player.x += velocity;
+      }
+
+      if (input.up) {
+        player.y -= velocity;
+
+      } else if (input.down) {
+        player.y += velocity;
+      }
     });
   }
 

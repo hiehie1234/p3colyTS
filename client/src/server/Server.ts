@@ -1,4 +1,5 @@
 import { Client, Room} from 'colyseus.js'
+import { Message, IinputPayload } from '../../../type/message'
 
 export default class Server{
   private client: Client
@@ -17,6 +18,7 @@ export default class Server{
      this.room.state.players.onAdd((player, sessionId) => { 
       this.events.emit('player-onadd', player, sessionId)
      })
+
      this.room.state.players.onRemove((player, sessionId) => {
       this.events.emit('player-onremove', player, sessionId)
      })
@@ -24,6 +26,12 @@ export default class Server{
       console.error(e)
     }
 	}
+  movePlayer(inputPayload: IinputPayload) {
+     // skip loop if not connected with room yet.
+     if (!this.room) { return; }
+
+     this.room.send(Message.playerMove, inputPayload)
+  }
 
   onPlayerAdd(cb: (player, sessionId) => void, context?: any): void {
     this.events.on('player-onadd', cb, context)

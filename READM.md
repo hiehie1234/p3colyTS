@@ -1,6 +1,6 @@
-# Test in Colyseus & Phaser 3.7
+# Test in Colyseus & Phaser 3.7 Starter
 
-Source code built with Phaser + Colyseus.
+This is a starter or template project for a basic multiplayer game, using Colyseus as the multiplayer backend server and Phaser 3.7 as the frontend.
 
 - [Phaser Tutorial](https://phaser.io/)
 - [See Colyseus documentation](https://docs.colyseus.io/)

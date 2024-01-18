@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 
-import HelloWorldScene from './scenes/HelloWorldScene'
+
+import Bootstrap from './scenes/Bootstrap'
 
 const config: Phaser.Types.Core.GameConfig = {
 	type: Phaser.AUTO,
@@ -9,7 +10,7 @@ const config: Phaser.Types.Core.GameConfig = {
 	height: 600,
   physics: { default: "arcade" },
   pixelArt: true,
-	scene: [HelloWorldScene],
+	scene: [Bootstrap],
 }
 
 export default new Phaser.Game(config)

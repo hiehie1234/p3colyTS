@@ -10,8 +10,10 @@ export class MyRoom extends Room<MyRoomState> {
     this.onMessage(Message.playerMove, (client, input: IinputPayload) => {
        // get reference to the player who sent the message
        const player = this.state.players.get(client.sessionId);
-       const velocity = 2; // can share data instead
+       const velocity = 2; // can share  with client data
 
+       if(!player) return;
+       
        if (input.left) {
         player.x -= velocity;
 

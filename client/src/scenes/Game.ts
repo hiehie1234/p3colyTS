@@ -11,9 +11,10 @@ import {
   removeEntity,
 } from "bitecs";
 
-import { Position, Velocity, Sprite } from "../components";
+import { Position, Velocity, Sprite, Player } from "../components";
 import { createSpriteSystem } from "../systems/SpriteSystem";
-
+import { createMovementSystem } from "../systems/MovementSystem";
+import { createPlayerSystem } from "../systems/PlayerSystem";
 export default class Game extends Phaser.Scene {
   cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
 
@@ -30,8 +31,10 @@ export default class Game extends Phaser.Scene {
   };
   private world: IWorld;
   private spriteSystem: System;
+  private movementSystem: System;
+  private playerSystem: System;
 
-  images;
+  remoteRef: Phaser.GameObjects.Rectangle;
 
   constructor() {
     super("game");
@@ -39,10 +42,6 @@ export default class Game extends Phaser.Scene {
 
   init() {
     this.cursorKeys = this.input.keyboard.createCursorKeys();
-  }
-
-  preload() {
-    this.load.image("ship_0001", "images/ship_0001.png");
   }
 
   async create(data: IGameSceneData) {
@@ -57,12 +56,17 @@ export default class Game extends Phaser.Scene {
 
     this.server.onPlayerAdd(this.handlePlayerAdd, this);
     this.server.onPlayerLeave(this.handlePlayerLeave, this);
+
+    this.spriteSystem = createSpriteSystem(this, ["ship_0001"]);
+    this.movementSystem = createMovementSystem();
   }
 
   update(time: number, delta: number): void {
-    if (!this.world || !this.spriteSystem) return;
-    this.spriteSystem(this.world);
+    if (!this.world) return;
 
+    this.playerSystem?.(this.world);
+    this.movementSystem?.(this.world);
+    this.spriteSystem?.(this.world);
     // send input to the server
     this.inputPayload.left = this.cursorKeys.left.isDown;
     this.inputPayload.right = this.cursorKeys.right.isDown;
@@ -81,27 +85,50 @@ export default class Game extends Phaser.Scene {
     //   delete this.playerEntities[sessionId]
     // }
     const enity = this.playerEntities[sessionId];
-    removeEntity(this.world, enity);
+    if (enity >= 0) {
+      removeEntity(this.world, enity);
+      delete this.playerEntities[sessionId];
+    }
   }
 
-  handlePlayerAdd(player: any, sessionId: string) {
+  handlePlayerAdd(player: any, sessionId: string, room: any) {
     //const entity = this.physics.add.image(player.x, player.y, 'ship_0001')
     const entity = addEntity(this.world);
     addComponent(this.world, Position, entity);
+    Position.x[entity] = player.x;
+    Position.y[entity] = player.y;
     addComponent(this.world, Velocity, entity);
-    Velocity.x[entity] = 2;
-    Velocity.y[entity] = 2;
     addComponent(this.world, Sprite, entity);
     Sprite.texture[entity] = 0;
+    // this.sessionIds.push(sessionId);
+    // console.log(this.sessionIds[0]);
+    addComponent(this.world, Player, entity);
+    Player.sessionId[entity] = entity;
 
-    this.spriteSystem = createSpriteSystem(this, ["ship_0001"]);
     // keep a reference of it on `playerEntities`
     this.playerEntities[sessionId] = entity;
-    // listening for server updates
-    player.onChange(() => {
-      // update local position immediately
-      Position.x[entity] = player.x;
-      Position.y[entity] = player.y;
-    });
+    this.playerSystem = createPlayerSystem(
+      this.cursorKeys,
+      this.playerEntities,
+      room.sessionId
+    );
+    if (sessionId === room.sessionId) {
+      // this is the current player!
+      // remoteRef is being used for debug only
+      this.remoteRef = this.add.rectangle(0, 0, 32, 32);
+      this.remoteRef.setStrokeStyle(1, 0xff0000);
+      player.onChange(() => {
+        this.remoteRef.x = player.x;
+        this.remoteRef.y = player.y;
+      });
+      //this.remoteRef.visible = false;
+    } else {
+      //listening for server updates
+      player.onChange(() => {
+        // update local position immediately
+        Position.x[entity] = player.x;
+        Position.y[entity] = player.y;
+      });
+    }
   }
 }

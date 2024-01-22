@@ -22,7 +22,8 @@ export const createSpriteSystem = (scene: Phaser.Scene, textures: string[]) => {
       const sprite = spritesById.get(eid);
       if (!sprite) continue;
       // operate directly on SoA data
-      sprite.setPosition(Position.x[eid], Position.y[eid]);
+      sprite.x = Position.x[eid];
+      sprite.y = Position.y[eid];
     }
 
     const exitEntities = spriteQueryExit(world);

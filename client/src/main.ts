@@ -1,18 +1,18 @@
-import Phaser from 'phaser'
+import Phaser from "phaser";
 
-
-import Bootstrap from './scenes/Bootstrap'
-import Game from './scenes/Game'
+import Bootstrap from "./scenes/Bootstrap";
+import Preloader from "./scenes/Preloader";
+import Game from "./scenes/Game";
 
 const config: Phaser.Types.Core.GameConfig = {
-	type: Phaser.AUTO,
-	parent: 'app',
-	width: 800,
-	height: 600,
-  backgroundColor: '#b6d53c',
+  type: Phaser.AUTO,
+  parent: "app",
+  width: 800,
+  height: 600,
+  backgroundColor: "#b6d53c",
   physics: { default: "arcade" },
   pixelArt: true,
-	scene: [Bootstrap, Game],
-}
+  scene: [Bootstrap, Preloader, Game],
+};
 
-export default new Phaser.Game(config)
+export default new Phaser.Game(config);

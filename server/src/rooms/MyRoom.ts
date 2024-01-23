@@ -1,38 +1,36 @@
 import { Room, Client } from "@colyseus/core";
 import { MyRoomState, Player } from "./schema/MyRoomState";
-import { Message, IinputPayload } from "../../../type/message"
+import { Message, IinputPayload } from "../../../type/message";
 export class MyRoom extends Room<MyRoomState> {
   maxClients = 4;
 
-  onCreate (options: any) {
+  onCreate(options: any) {
     this.setState(new MyRoomState());
 
     this.onMessage(Message.playerMove, (client, input: IinputPayload) => {
-       // get reference to the player who sent the message
-       const player = this.state.players.get(client.sessionId);
-       const velocity = 2; // can share  with client data
+      // get reference to the player who sent the message
+      const player = this.state.players.get(client.sessionId);
+      const velocity = 2; // can share  with client data
 
-       if(!player) return;
-       
-       if (input.left) {
+      if (!player) return;
+
+      if (input.left) {
         player.x -= velocity;
-
       } else if (input.right) {
         player.x += velocity;
       }
 
       if (input.up) {
         player.y -= velocity;
-
       } else if (input.down) {
         player.y += velocity;
       }
     });
   }
 
-  onJoin (client: Client, options: any) {
+  onJoin(client: Client, options: any) {
     console.log(client.sessionId, "joined!");
-    
+
     const mapWidth = 800;
     const mapHeight = 600;
 
@@ -48,7 +46,7 @@ export class MyRoom extends Room<MyRoomState> {
     this.state.players.set(client.sessionId, player);
   }
 
-  onLeave (client: Client, consented: boolean) {
+  onLeave(client: Client, consented: boolean) {
     console.log(client.sessionId, "left!");
 
     this.state.players.delete(client.sessionId);
@@ -57,5 +55,4 @@ export class MyRoom extends Room<MyRoomState> {
   onDispose() {
     console.log("room", this.roomId, "disposing...");
   }
-
 }

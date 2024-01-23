@@ -38,6 +38,8 @@ export default class Game extends Phaser.Scene {
 
   remoteRef: Phaser.GameObjects.Rectangle;
   room: any;
+  elapsedTime = 0;
+  fixedTimeStep = 1000 / 60;
 
   constructor() {
     super("game");
@@ -67,15 +69,25 @@ export default class Game extends Phaser.Scene {
   update(time: number, delta: number): void {
     if (!this.world) return;
 
-    this.playerSystem?.(this.world);
-    this.movementSystem?.(this.world);
-    this.spriteSystem?.(this.world);
+    this.elapsedTime += delta;
+    while (this.elapsedTime >= this.fixedTimeStep) {
+      this.elapsedTime -= this.fixedTimeStep;
+      this.fixedTick(time, this.fixedTimeStep);
+    }
+  }
+
+  fixedTick(time: number, delta: number) {
+    console.log(delta);
     // send input to the server
     this.inputPayload.left = this.cursorKeys.left.isDown;
     this.inputPayload.right = this.cursorKeys.right.isDown;
     this.inputPayload.up = this.cursorKeys.up.isDown;
     this.inputPayload.down = this.cursorKeys.down.isDown;
     this.server.movePlayer(this.inputPayload);
+
+    this.playerSystem?.(this.world);
+    this.movementSystem?.(this.world);
+    this.spriteSystem?.(this.world);
   }
 
   handlePlayerLeave(player: any, sessionId: string) {

@@ -3,6 +3,7 @@ import { MyRoomState, Player } from "./schema/MyRoomState";
 import { Message, IinputPayload } from "../../../type/message";
 export class MyRoom extends Room<MyRoomState> {
   maxClients = 4;
+  fixedTimeStep = 1000 / 60;
 
   onCreate(options: any) {
     this.setState(new MyRoomState());
@@ -10,20 +11,18 @@ export class MyRoom extends Room<MyRoomState> {
     this.onMessage(Message.playerMove, (client, input: IinputPayload) => {
       // get reference to the player who sent the message
       const player = this.state.players.get(client.sessionId);
-      const velocity = 2; // can share  with client data
 
-      if (!player) return;
+      // enqueue input to user input buffer
+      player.inputQueue.push(input);
+    });
 
-      if (input.left) {
-        player.x -= velocity;
-      } else if (input.right) {
-        player.x += velocity;
-      }
+    let elapsedTime = 0;
+    this.setSimulationInterval((deltaTime: number) => {
+      elapsedTime += deltaTime;
 
-      if (input.up) {
-        player.y -= velocity;
-      } else if (input.down) {
-        player.y += velocity;
+      while (elapsedTime >= this.fixedTimeStep) {
+        elapsedTime -= this.fixedTimeStep;
+        this.fixedTick(this.fixedTimeStep);
       }
     });
   }
@@ -54,5 +53,28 @@ export class MyRoom extends Room<MyRoomState> {
 
   onDispose() {
     console.log("room", this.roomId, "disposing...");
+  }
+
+  fixedTick(deltaTime: number) {
+    const velocity = 2;
+    console.log(deltaTime);
+    this.state.players.forEach((player) => {
+      let input: IinputPayload;
+
+      // dequeue player inputs
+      while ((input = player.inputQueue.shift())) {
+        if (input.left) {
+          player.x -= velocity;
+        } else if (input.right) {
+          player.x += velocity;
+        }
+
+        if (input.up) {
+          player.y -= velocity;
+        } else if (input.down) {
+          player.y += velocity;
+        }
+      }
+    });
   }
 }

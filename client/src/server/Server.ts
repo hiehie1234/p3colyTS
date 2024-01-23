@@ -16,10 +16,14 @@ export default class Server {
     try {
       this.room = await this.client.joinOrCreate("my_room`");
       this.room.state.players.onAdd((player, sessionId) => {
+        console.log(sessionId, "joined!");
+
         this.events.emit("player-onadd", player, sessionId, this.room);
       });
 
       this.room.state.players.onRemove((player, sessionId) => {
+        console.log(sessionId, "left!");
+
         this.events.emit("player-onremove", player, sessionId);
       });
     } catch (e) {

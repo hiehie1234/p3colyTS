@@ -15,6 +15,8 @@ import { Position, Velocity, Sprite, Player } from "../components";
 import { createSpriteSystem } from "../systems/SpriteSystem";
 import { createMovementSystem } from "../systems/MovementSystem";
 import { createPlayerSystem } from "../systems/PlayerSystem";
+import { TextureKeys } from "../consts";
+
 export default class Game extends Phaser.Scene {
   cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
 
@@ -35,6 +37,7 @@ export default class Game extends Phaser.Scene {
   private playerSystem: System;
 
   remoteRef: Phaser.GameObjects.Rectangle;
+  room: any;
 
   constructor() {
     super("game");
@@ -57,7 +60,7 @@ export default class Game extends Phaser.Scene {
     this.server.onPlayerAdd(this.handlePlayerAdd, this);
     this.server.onPlayerLeave(this.handlePlayerLeave, this);
 
-    this.spriteSystem = createSpriteSystem(this, ["ship_0001"]);
+    this.spriteSystem = createSpriteSystem(this, [TextureKeys.Ship]);
     this.movementSystem = createMovementSystem();
   }
 
@@ -93,6 +96,7 @@ export default class Game extends Phaser.Scene {
 
   handlePlayerAdd(player: any, sessionId: string, room: any) {
     //const entity = this.physics.add.image(player.x, player.y, 'ship_0001')
+    this.room = room;
     const entity = addEntity(this.world);
     addComponent(this.world, Position, entity);
     Position.x[entity] = player.x;

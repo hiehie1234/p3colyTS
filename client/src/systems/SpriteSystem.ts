@@ -22,8 +22,11 @@ export const createSpriteSystem = (scene: Phaser.Scene, textures: string[]) => {
       const sprite = spritesById.get(eid);
       if (!sprite) continue;
       // operate directly on SoA data
-      sprite.x = Position.x[eid];
-      sprite.y = Position.y[eid];
+      //sprite.x = Position.x[eid];
+      //sprite.y = Position.y[eid];
+      // linear interpolation for the sprite
+      sprite.x = Phaser.Math.Linear(sprite.x, Position.x[eid], 0.2);
+      sprite.y = Phaser.Math.Linear(sprite.y, Position.y[eid], 0.2);
     }
 
     const exitEntities = spriteQueryExit(world);

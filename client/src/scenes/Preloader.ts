@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { IGameSceneData } from "../../../type/scenes";
+import { TextureKeys } from "../consts";
 
 export default class Preloader extends Phaser.Scene {
   constructor() {
@@ -7,7 +8,7 @@ export default class Preloader extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image("ship_0001", "images/ship_0001.png");
+    this.load.image(TextureKeys.Ship, "images/ship_0001.png");
   }
 
   create(data: IGameSceneData) {

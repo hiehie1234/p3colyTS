@@ -7,7 +7,6 @@ export function createPlayerSystem(
   sessionIds: { [sessionId: string]: number },
   roomSessionId: string
 ) {
-  console.log("@@", sessionIds, roomSessionId);
   const sessionById = new Map<number, string>();
   const playerQuery = defineQuery([Player, Velocity]);
   const playerQueryEnter = enterQuery(playerQuery);
@@ -34,7 +33,6 @@ export function createPlayerSystem(
         Velocity.y[eid] = 0;
         //control current player
         if (cursors.left.isDown) {
-          console.log(eid);
           Velocity.x[eid] = -2;
           //Velocity.y[eid] = 0;
         } else if (cursors.right.isDown) {
